@@ -1,0 +1,142 @@
+1. literal types are types that can be used in constant expressions: 
+	Trivial destructor
+	All data members and base classes must themselves be literal types.
+	Must be a structural type
+	
+2. constexpr Lambdas:
+	auto squared3 = [](auto val) constexpr { // OK since C++17
+		return val*val;
+	};
+	
+3. Passing Copies of this to Lambdas:
+	auto l1 = [copy=*this] { std::cout << copy.name << '\n'; }; // c++17
+	auto l1 = [*this] { std::cout << name << '\n'; }; // c++17
+	
+4. Attribute [[nodiscard]]
+
+5. Attribute [[maybe_unused]]
+	[[maybe_unused]] char makeLargerSize[100];
+
+6. Attribute [[fallthrough]]:
+	The new attribute [[fallthrough]] can be used to avoid warnings by the compiler for not having a break statement after a sequence of one or more case labels inside a switch statement.
+	
+7.  [[deprecated]] 
+
+8. Defined Expression Evaluation Order
+	i = 0;
+	std::cout << ++i << ' ' << --i << '\n'; // Before C++17, it might print 1 0; but it might also print 0 -1 or even 0 0. 
+	The new guaranteed evaluation order might impact the output of existing programs.
+
+9. Relaxed Enum Initialization from Integral Values
+	MyInt i1{42}; // OK since C++17 (ERROR before C++17)
+	MyInt i2 = 42; // still ERROR
+	MyInt i3(42); // still ERROR
+	MyInt i4 = {42}; // still ERROR
+	
+10. Fixed Direct List Initialization with auto
+	auto a{42}; // initializes an int now
+	auto c = {42}; // still initializes a std::initializer_list<int>
+	// no heap allocation. using brace-list syntax like {1, 2, 3} directly in a function call or assignment to your class does require compiler support — and only std::initializer_list is special in this way.
+	
+11. Hexadecimal Floating-Point Literals
+	0x1p4, // 16
+	0xA, // 10
+	0xAp2, // 40
+	For example, 0xAp2 is a way to specify the decimal value 40 (10 times 2 to the power of 2). The value could also be expressed as 0x1.4p+5, which is 1.25 times 32 (0.4 is a hexadecimal quarter and 2 to the power of 5 is 32)
+
+12. UTF-8 Character Literals
+	char c = u8'¨o';
+	auto s = u8"你好，世界";
+	u8 for single-byte US-ASCII and UTF-8 encoding.
+	u for two-byte UTF-16 encoding.
+	U for four-byte UTF-32 encoding.
+	l for wide characters without specific encoding, which might have two or four bytes.
+	
+13. Exception Specifications as Part of the Type
+
+14. Single-Argument static_assert:
+	// OK since C++11:
+	static_assert(std::is_default_constructible_v<T>, "class C: elements must be default-constructible");
+	// OK since C++17:
+	static_assert(std::is_default_constructible_v<T>);
+	
+15. Preprocessor Condition __has_include: C++17 extends the preprocessor to be able to check, whether a specific header file could be included.
+	For example:
+	#if __has_include(<filesystem>)
+	# include <filesystem>
+	# define HAS_FILESYSTEM 1
+
+16. Class Template Argument Deduction
+	std::complex<double> c{5.1,3.3};   -> std::complex c{5.1,3.3};
+	
+17. Deduction from Iterators:
+	std::vector v {1, 2};
+	
+18. if constexpr
+	if constexpr (auto obj = foo(x); std::is_same_v<decltype(obj), T>) {
+		std::cout << "foo(x) yields same type\n";
+		...
+	}
+
+19 . Using Compile-Time if Outside Templates
+	if constexpr(std::numeric_limits<char>::is_signed) {
+		foo(42); // OK
+	}
+
+20. return auto vs return decltype(auto)
+	int x = 42;
+	decltype(auto) f() {
+		return (x);  // returns int& (not a copy!)
+	}
+	
+21. Fold Expressions, check tps node example
+
+22. Using Strings in Templates
+	static const char hello17[] = "Hello World!"; // no linkage
+	Message<hello17> msg17; // OK since C++17
+
+23. Using auto as Template Parameter for on-type parameters of different types.
+	template<auto N> class S {...}
+	S<42> s1; // OK: type of N in S is int
+	S<'a'> s2; // OK: type of N in S is char
+	
+	template<typename T, auto N> std::array<T,N> arr;
+	
+24. Container-Support of Incomplete Types：
+	struct Node
+	{
+	std::string value;
+	std::vector<Node> children; // OK since C++17 (Node is an incomplete type here)
+	}
+	
+	extract is the only way to change a key of a map element without reallocation:
+	
+	std::map<int, std::string> m{{1, "mango"}, {2, "papaya"}, {3, "guava"}};
+	auto nh = m.extract(2);
+	nh.key() = 4;
+	m.insert(std::move(nh));
+	// m == {{1, "mango"}, {3, "guava"}, {4, "papaya"}}
+
+25. size(), empty(), and data()
+	as_const()：
+	foo(std::as_const(coll)); // forces to use the const overload
+	auto printColl = [&coll = std::as_const(coll)] {}
+	
+26. clamp()： clamp(i, 5, 13) has the same effect as calling std::min(std::max(i, 5), 13)
+
+27. std::scoped_lock： std::scoped_lock lg(allIssuesMx, openIssuesMx)
+
+28. std::shared_mutex
+
+29. is_always_lock_free()
+
+30. Cache-Line Sizes:
+	hardware_destructive_interference_size is the recommended minimum offset between objects that might be accessed by different threads concurrently to avoid worse performance because the same L1 cache line is affected.
+	hardware_constructive_interference_size is the recommended maximum size of contiguous memory within two objects are placed in the same L1 cache line.
+	getconf LEVEL1_DCACHE_LINESIZE
+	
+31. Using new with Alignments
+	struct alignas(32) MyType32. MyType32* p = new MyType32; // since C++17 guaranteed to be 32-bytes aligne
+	new(std::align_val_t{64}) std::string;
+	
+32. 

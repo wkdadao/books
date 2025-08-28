@@ -1,0 +1,17 @@
+1. solarFlare - industry standard low latency NIC
+2. openOnload - easy to use: compatible with BSD sockets (no codes changes needed)
+3. TCP direct 
+4. EF_VI
+
+| 特性 / 技术      | **Solarflare + Onload** | **DPDK**                 | **Aeron**                        |
+| ------------ | ----------------------- | ------------------------ | -------------------------------- |
+| 架构类型         | 用户态协议栈（TCP/UDP）         | 用户态网络驱动（Raw packet）      | 应用层消息传输框架（UDP 或 IPC）             |
+| 协议支持         | 完整 TCP/UDP 协议栈          | 无协议栈，需自行封装               | UDP + 自定义协议 / IPC                |
+| 延迟表现         | 极低（\~2-5μs）             | 极低（\~1-2μs）              | 极低（\~2μs+，具体取决于实现）               |
+| 吞吐量          | 高，但受限于协议栈               | 极高，原始报文层面                | 非常高（百万级 msg/s）                   |
+| 编程复杂度        | 低（与 BSD Socket 类似）      | 高（需手写 packet 处理）         | 中等（API 专注消息流，较现代）                |
+| 易用性          | 开箱即用，兼容现有 TCP 应用        | 较复杂，需管理 hugepage/CPU 绑核等 | 上手快，文档好，但依赖 Aeron 工具集            |
+| 内核旁路（Bypass） | ✅ 支持                    | ✅ 支持                     | ✅（通过 UDP socket 或共享内存）           |
+| 适合场景         | 高频交易、低延迟微服务             | HFT、NFV、定制网络处理器          | 交易撮合、流数据、日志、遥测                   |
+| 硬件依赖         | ✅ Solarflare NIC        | ❌ 通常基于 Intel/NVIDIA NIC  | ❌ 标准网络接口即可                       |
+| 商业支持         | ✅（AMD/Solarflare）       | ✅（Intel、NVIDIA 等）        | ✅（Adaptive Financial Consulting） |
